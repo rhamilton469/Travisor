@@ -7,8 +7,11 @@
 
 		$catagory = mysqli_real_escape_string($conn, $_POST['catagory']);
 		$city = mysqli_real_escape_string($conn, $_POST['city']);
+		$name = mysqli_real_escape_string($conn, $_POST['name']);
+		$companyName = mysqli_real_escape_string($conn, $_POST['cname']);
 
-		$query = "SELECT travisor_tradesperson.name, travisor_catagory.catname, travisor_city.cityname, travisor_company.cname, travisor_company.description 
+		if ($name == '' && $companyName == '') {
+			$query = "SELECT travisor_tradesperson.name, travisor_catagory.catname, travisor_city.cityname, travisor_company.cname, travisor_company.description 
 				FROM `travisor_tradesperson`
 				INNER JOIN travisor_company 
 				ON travisor_tradesperson.company = travisor_company.id
@@ -18,7 +21,32 @@
 				ON travisor_tradesperson.city = travisor_city.id	
 				WHERE travisor_catagory.catname = '$catagory'
 				AND travisor_city.cityname = '$city'";
-
+		}
+		
+		if ($name != '') {
+			$query = "SELECT travisor_tradesperson.name, travisor_catagory.catname, travisor_city.cityname, travisor_company.cname, travisor_company.description 
+				FROM `travisor_tradesperson`
+				INNER JOIN travisor_company 
+				ON travisor_tradesperson.company = travisor_company.id
+				INNER JOIN travisor_catagory 
+				ON travisor_tradesperson.catagory = travisor_catagory.id	
+				INNER JOIN travisor_city 
+				ON travisor_tradesperson.city = travisor_city.id	
+				WHERE travisor_tradesperson.name = '$name'";
+		}
+		
+		if ($companyName != '' && $name == '') {
+			$query = "SELECT travisor_tradesperson.name, travisor_catagory.catname, travisor_city.cityname, travisor_company.cname, travisor_company.description 
+				FROM `travisor_tradesperson`
+				INNER JOIN travisor_company 
+				ON travisor_tradesperson.company = travisor_company.id
+				INNER JOIN travisor_catagory 
+				ON travisor_tradesperson.catagory = travisor_catagory.id	
+				INNER JOIN travisor_city 
+				ON travisor_tradesperson.city = travisor_city.id	
+				WHERE travisor_company.cname = '$companyName'";
+		}
+		
 		$result = mysqli_query($conn, $query) or die(mysqli_error($conn));
 
 		mysqli_close($conn);
@@ -105,16 +133,16 @@
 							<input type="text" placeholder="Enter city or town" class="form-control" name="city" value="<?php echo isset($_POST['city']) ? $_POST['city'] : '' ?>">
 						</span>
 						<br>
-						<!--<span class="form-group">
+						<span class="form-group">
 						<label>Or search by trades person name...</label>
-							<input type="text" placeholder="Enter trades person name..." class="form-control" name="name">
+							<input type="text" placeholder="Enter trades person name..." class="form-control" name="name" value="<?php echo isset($_POST['name']) ? $_POST['name'] : '' ?>">
 						</span>
 						<br>
 						<span class="form-group">
 						<label>Or search by company name...</label>
-							<input type="text" placeholder="Enter company name..." class="form-control" name="name">
+							<input type="text" placeholder="Enter company name..." class="form-control" name="cname" value="<?php echo isset($_POST['cname']) ? $_POST['cname'] : '' ?>">
 						</span>
-						<br>-->
+						<br>
 						<button type="submit" class="btn btn-primary" name='search'>Search</button>
 					</form>
 
