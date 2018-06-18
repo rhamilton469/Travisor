@@ -1,0 +1,19 @@
+.vSpacer {
+ height:50px;
+}
+
+.background1 {
+    background-image: url('../trade.png');
+	background-repeat: no-repeat;
+    background-size: cover;
+	height: 100vh;
+	
+}
+
+.white {
+	color: white;
+}
+
+.panel-body {
+	color: black;
+}
