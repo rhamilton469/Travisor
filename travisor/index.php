@@ -11,7 +11,9 @@
 		$companyName = mysqli_real_escape_string($conn, $_POST['cname']);
 
 		if ($name == '' && $companyName == '') {
-			$query = "SELECT travisor_tradesperson.name, travisor_catagory.catname, travisor_city.cityname, travisor_company.cname, travisor_company.description 
+			$query = "SELECT travisor_tradesperson.name, travisor_catagory.catname, travisor_city.cityname, 
+						travisor_company.cname, travisor_company.description, ROUND(AVG(travisor_review.rating)) as RoundAvgRating, 
+						AVG(travisor_review.rating) as AvgRating, COUNT(travisor_review.rating) as NumReviews
 				FROM `travisor_tradesperson`
 				INNER JOIN travisor_company 
 				ON travisor_tradesperson.company = travisor_company.id
@@ -19,32 +21,54 @@
 				ON travisor_tradesperson.catagory = travisor_catagory.id	
 				INNER JOIN travisor_city 
 				ON travisor_tradesperson.city = travisor_city.id	
+				INNER JOIN travisor_review 
+				ON travisor_review.tradesperson = travisor_tradesperson.id 
 				WHERE travisor_catagory.catname = '$catagory'
-				AND travisor_city.cityname = '$city'";
+				AND travisor_city.cityname = '$city'
+				GROUP BY travisor_tradesperson.name, travisor_catagory.catname, 
+					travisor_city.cityname, travisor_company.cname, 
+					travisor_company.description
+				ORDER BY AvgRating DESC, NumReviews DESC";
 		}
 		
 		if ($name != '') {
-			$query = "SELECT travisor_tradesperson.name, travisor_catagory.catname, travisor_city.cityname, travisor_company.cname, travisor_company.description 
+			$query = "SELECT travisor_tradesperson.name, travisor_catagory.catname, travisor_city.cityname, 
+						travisor_company.cname, travisor_company.description, ROUND(AVG(travisor_review.rating)) as RoundAvgRating, 
+						AVG(travisor_review.rating) as AvgRating, COUNT(travisor_review.rating) as NumReviews
 				FROM `travisor_tradesperson`
 				INNER JOIN travisor_company 
 				ON travisor_tradesperson.company = travisor_company.id
 				INNER JOIN travisor_catagory 
 				ON travisor_tradesperson.catagory = travisor_catagory.id	
 				INNER JOIN travisor_city 
-				ON travisor_tradesperson.city = travisor_city.id	
-				WHERE travisor_tradesperson.name = '$name'";
+				ON travisor_tradesperson.city = travisor_city.id
+				INNER JOIN travisor_review 
+				ON travisor_review.tradesperson = travisor_tradesperson.id
+				WHERE travisor_tradesperson.name = '$name'
+				GROUP BY travisor_tradesperson.name, travisor_catagory.catname, 
+					travisor_city.cityname, travisor_company.cname, 
+					travisor_company.description
+				ORDER BY AvgRating DESC, NumReviews DESC";
 		}
 		
 		if ($companyName != '' && $name == '') {
-			$query = "SELECT travisor_tradesperson.name, travisor_catagory.catname, travisor_city.cityname, travisor_company.cname, travisor_company.description 
+			$query = "SELECT travisor_tradesperson.name, travisor_catagory.catname, travisor_city.cityname, 
+						travisor_company.cname, travisor_company.description, ROUND(AVG(travisor_review.rating)) as RoundAvgRating, 
+						AVG(travisor_review.rating) as AvgRating, COUNT(travisor_review.rating) as NumReviews
 				FROM `travisor_tradesperson`
 				INNER JOIN travisor_company 
 				ON travisor_tradesperson.company = travisor_company.id
 				INNER JOIN travisor_catagory 
 				ON travisor_tradesperson.catagory = travisor_catagory.id	
 				INNER JOIN travisor_city 
-				ON travisor_tradesperson.city = travisor_city.id	
-				WHERE travisor_company.cname = '$companyName'";
+				ON travisor_tradesperson.city = travisor_city.id
+				INNER JOIN travisor_review 
+				ON travisor_review.tradesperson = travisor_tradesperson.id				
+				WHERE travisor_company.cname = '$companyName'
+				GROUP BY travisor_tradesperson.name, travisor_catagory.catname, 
+					travisor_city.cityname, travisor_company.cname, 
+					travisor_company.description
+				ORDER BY AvgRating DESC, NumReviews DESC";
 		}
 		
 		$result = mysqli_query($conn, $query) or die(mysqli_error($conn));
@@ -56,13 +80,20 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Home</title>
+		<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+		<link rel="icon" href="/favicon.ico" type="image/x-icon">
+        <title>Travisor</title>
+		
         <!-- Latest compiled and minified CSS -->
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />
         <!-- Latest compiled and minified JavaScript -->
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
 		
         <link rel="stylesheet" href="Styles/custom.css" />
+		
+		
+		
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		
     </head>
 
@@ -112,8 +143,8 @@
 				<div class="vSpacer"></div>
 			</div>
 			<div class="row">
-				<div class="col-sm-1 col-md-2 col-lg-3"></div>
-				<div class="col-sm-10 col-md-8 col-lg-6">
+				<div class="col-sm-0 col-md-2 col-lg-3"></div>
+				<div class="col-sm-12 col-md-8 col-lg-6">
 					<h1>Search for a trades person...</h1>
 
 					<form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']);?>" method='POST'>
@@ -147,7 +178,7 @@
 					</form>
 
 				</div>
-				<div class="col-sm-1 col-md-2 col-lg-3"></div>
+				<div class="col-sm-0 col-md-2 col-lg-3"></div>
 			</div>
 		</div>
 		</div>		
@@ -157,40 +188,68 @@
 				<div class="vSpacer"></div>
 			</div>
 			<div class="row">
-				<div class="col-sm-1 col-md-2 col-lg-3"></div>
-				<div class="col-sm-10 col-md-8 col-lg-6">
-				<?php
+				<div class="col-sm-0 col-md-2 col-lg-3"></div>
+				<div class="col-sm-12 col-md-8 col-lg-6">
 					
-					if (isset($_POST["search"])) {
-					  
-						if(mysqli_num_rows($result) == 0) {
-							
-							echo "No trades people meet your search criteria";
-							
-						}
+					<?php
 						
-						if (mysqli_num_rows($result) > 0) {
+						if (isset($_POST["search"])) {
+						  
+							if(mysqli_num_rows($result) == 0) {
+								
+								echo "No trades people meet your search criteria";
+								
+							}
+							
+							if (mysqli_num_rows($result) > 0) {
 
-							while ($row = mysqli_fetch_assoc($result)) {
+								while ($row = mysqli_fetch_assoc($result)) {
 
-								$name = $row["name"];
-								$cname = $row["cname"];
-								$description = $row["description"];
+									$name = $row["name"];
+									$cname = $row["cname"];
+									$description = $row["description"];
+									$rating = $row["RoundAvgRating"];
+									$NumReviews = $row["NumReviews"];
 
-								echo "<div class='panel panel-default'>
-										<div class='panel-body'><p>$name - $cname</p><br /><p>$description</p></div>
-									</div>";
+									echo 	"<div class='panel panel-default'>";
+									echo		"<div class='panel-body'>";
+									echo			"<p>$name - $cname</p>";
+									
+									if ($rating == 1) {
+										echo "<p><img src='images/1star.png' /> - <a href ='#'>$NumReviews reviews</a></p>";
+									}
+									
+									if ($rating == 2) {
+										echo "<p><img src='images/2star.png' /> - <a href ='#'>$NumReviews reviews</a></p>";
+									}
+									
+									if ($rating == 3) {
+										echo "<p><img src='images/3star.png' /> - <a href ='#'>$NumReviews reviews</a></p>";
+									}
+									
+									if ($rating == 4) {
+										echo "<p><img src='images/4star.png' /> - <a href ='#'>$NumReviews reviews</a></p>";
+									}
+									
+									if ($rating == 5) {
+										echo "<p><img src='images/5star.png' /> - <a href ='#'>$NumReviews reviews</a></p>";
+									}
+									
+									echo			"<p>$description</p>";
+									echo			"<p><a href = '#'>Leave a review</a></p>";
+									echo		"</div>";
+									echo	"</div>";
+								}
 							}
 						}
-					}
-				?>
-
+					?>
+				
 				</div>
-				<div class="col-sm-1 col-md-2 col-lg-3"></div>
+				<div class="col-sm-0 col-md-2 col-lg-3"></div>
 			</div>
 		</div>
 				
-	
-		</div>
+	</div>
+		
     </body>
 </html>
