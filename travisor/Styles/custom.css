@@ -1,5 +1,5 @@
 .vSpacer {
- height:50px;
+ height:60px;
 }
 
 .background1 {
@@ -17,4 +17,8 @@
 
 .panel-body {
 	color: black;
+}
+
+textarea {
+  vertical-align: top;
 }

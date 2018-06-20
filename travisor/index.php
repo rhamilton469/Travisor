@@ -1,4 +1,5 @@
 <?php
+	session_start();
 
 	include('connections/conn.php');
 	
@@ -11,62 +12,53 @@
 		$companyName = mysqli_real_escape_string($conn, $_POST['cname']);
 
 		if ($name == '' && $companyName == '') {
-			$query = "SELECT travisor_tradesperson.name, travisor_catagory.catname, travisor_city.cityname, 
-						travisor_company.cname, travisor_company.description, ROUND(AVG(travisor_review.rating)) as RoundAvgRating, 
-						AVG(travisor_review.rating) as AvgRating, COUNT(travisor_review.rating) as NumReviews
+			$query = "SELECT travisor_tradesperson.name, travisor_tradesperson.id, travisor_catagory.catname, 
+						travisor_company.cname, travisor_company.description, travisor_company.city, travisor_company.address, travisor_company.postcode, travisor_company.phone, 
+						ROUND(AVG(travisor_review.rating)) as RoundAvgRating, AVG(travisor_review.rating) as AvgRating, COUNT(travisor_review.rating) as NumReviews
 				FROM `travisor_tradesperson`
 				INNER JOIN travisor_company 
 				ON travisor_tradesperson.company = travisor_company.id
 				INNER JOIN travisor_catagory 
-				ON travisor_tradesperson.catagory = travisor_catagory.id	
-				INNER JOIN travisor_city 
-				ON travisor_tradesperson.city = travisor_city.id	
+				ON travisor_tradesperson.catagory = travisor_catagory.id		
 				INNER JOIN travisor_review 
 				ON travisor_review.tradesperson = travisor_tradesperson.id 
 				WHERE travisor_catagory.catname = '$catagory'
-				AND travisor_city.cityname = '$city'
-				GROUP BY travisor_tradesperson.name, travisor_catagory.catname, 
-					travisor_city.cityname, travisor_company.cname, 
+				AND travisor_company.city = '$city'
+				GROUP BY travisor_tradesperson.name, travisor_catagory.catname, travisor_company.cname, 
 					travisor_company.description
 				ORDER BY AvgRating DESC, NumReviews DESC";
 		}
 		
 		if ($name != '') {
-			$query = "SELECT travisor_tradesperson.name, travisor_catagory.catname, travisor_city.cityname, 
-						travisor_company.cname, travisor_company.description, ROUND(AVG(travisor_review.rating)) as RoundAvgRating, 
-						AVG(travisor_review.rating) as AvgRating, COUNT(travisor_review.rating) as NumReviews
+			$query = "SELECT travisor_tradesperson.name, travisor_tradesperson.id, travisor_catagory.catname, 
+						travisor_company.cname, travisor_company.description, travisor_company.city, travisor_company.address, travisor_company.postcode, travisor_company.phone,
+						ROUND(AVG(travisor_review.rating)) as RoundAvgRating, AVG(travisor_review.rating) as AvgRating, COUNT(travisor_review.rating) as NumReviews
 				FROM `travisor_tradesperson`
 				INNER JOIN travisor_company 
 				ON travisor_tradesperson.company = travisor_company.id
 				INNER JOIN travisor_catagory 
 				ON travisor_tradesperson.catagory = travisor_catagory.id	
-				INNER JOIN travisor_city 
-				ON travisor_tradesperson.city = travisor_city.id
 				INNER JOIN travisor_review 
 				ON travisor_review.tradesperson = travisor_tradesperson.id
 				WHERE travisor_tradesperson.name = '$name'
-				GROUP BY travisor_tradesperson.name, travisor_catagory.catname, 
-					travisor_city.cityname, travisor_company.cname, 
+				GROUP BY travisor_tradesperson.name, travisor_catagory.catname, travisor_company.cname, 
 					travisor_company.description
 				ORDER BY AvgRating DESC, NumReviews DESC";
 		}
 		
 		if ($companyName != '' && $name == '') {
-			$query = "SELECT travisor_tradesperson.name, travisor_catagory.catname, travisor_city.cityname, 
-						travisor_company.cname, travisor_company.description, ROUND(AVG(travisor_review.rating)) as RoundAvgRating, 
-						AVG(travisor_review.rating) as AvgRating, COUNT(travisor_review.rating) as NumReviews
+			$query = "SELECT travisor_tradesperson.name, travisor_tradesperson.id, travisor_catagory.catname, 
+						travisor_company.cname, travisor_company.description, travisor_company.city, travisor_company.address, travisor_company.postcode, travisor_company.phone,
+						ROUND(AVG(travisor_review.rating)) as RoundAvgRating, AVG(travisor_review.rating) as AvgRating, COUNT(travisor_review.rating) as NumReviews
 				FROM `travisor_tradesperson`
 				INNER JOIN travisor_company 
 				ON travisor_tradesperson.company = travisor_company.id
 				INNER JOIN travisor_catagory 
 				ON travisor_tradesperson.catagory = travisor_catagory.id	
-				INNER JOIN travisor_city 
-				ON travisor_tradesperson.city = travisor_city.id
 				INNER JOIN travisor_review 
 				ON travisor_review.tradesperson = travisor_tradesperson.id				
 				WHERE travisor_company.cname = '$companyName'
-				GROUP BY travisor_tradesperson.name, travisor_catagory.catname, 
-					travisor_city.cityname, travisor_company.cname, 
+				GROUP BY travisor_tradesperson.name, travisor_catagory.catname, travisor_company.cname, 
 					travisor_company.description
 				ORDER BY AvgRating DESC, NumReviews DESC";
 		}
@@ -183,7 +175,7 @@
 		</div>
 		</div>		
 	
-			<div class="container">
+		<div class="container">
 			<div class="row">
 				<div class="vSpacer"></div>
 			</div>
@@ -210,10 +202,16 @@
 									$description = $row["description"];
 									$rating = $row["RoundAvgRating"];
 									$NumReviews = $row["NumReviews"];
+									$city = $row["city"];
+									$address = $row["address"];
+									$postcode = $row["postcode"];
+									$phone = $row["phone"];
+									$id = $row["id"];
 
 									echo 	"<div class='panel panel-default'>";
 									echo		"<div class='panel-body'>";
-									echo			"<p>$name - $cname</p>";
+									echo			"<h3>$name - $cname</h3>";
+									echo        	"<div class='panelBodyOne' style='float: left; width: 50%;'>";
 									
 									if ($rating == 1) {
 										echo "<p><img src='images/1star.png' /> - <a href ='#'>$NumReviews reviews</a></p>";
@@ -235,8 +233,15 @@
 										echo "<p><img src='images/5star.png' /> - <a href ='#'>$NumReviews reviews</a></p>";
 									}
 									
-									echo			"<p>$description</p>";
-									echo			"<p><a href = '#'>Leave a review</a></p>";
+									echo				"<p>$description</p>";
+									echo            "</div>";
+									echo            "<div class='panelBodyTwo' style='float: right; width: 50%;'>";
+									echo				"<p>Phone - $phone</p>";
+									echo				"<p>Address - $address, $city, $postcode</p>";
+									echo           "</div>";
+									
+									echo				"<p><a class='btn btn-primary' href='leavereview.php?id=$id' role='button'>Leave a review</a></p>";
+									
 									echo		"</div>";
 									echo	"</div>";
 								}
